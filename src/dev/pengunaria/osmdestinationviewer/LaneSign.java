@@ -26,25 +26,27 @@ class LaneSign extends RoadSignpost {
 		/**
 		 * Vedi: https://wiki.openstreetmap.org/wiki/Key:destination:colour
 		 */
-		switch (this.countryCode.toUpperCase()) {
-		case "DE":
-			if (isMotorway()) {
-				return "blue"; // Blue for motorways in DE
+		if (this.countryCode != null) {
+			switch (this.countryCode.toUpperCase()) {
+			case "DE":
+				if (isMotorway()) {
+					return "blue"; // Blue for motorways in DE
+				}
+				break;
+			case "IT":
+				if (isMotorway()) {
+					return "green"; // Green for motorways in IT
+				} else if (isFreeway()) {
+					return "blue"; // Blue for freeways in IT
+				} else {
+					return "white"; // Default color for other highways in IT
+				}
+			case "US":
+				if (isMotorway()) {
+					return "green"; // Green for motorways in and US
+				}
+				break;
 			}
-			break;
-		case "IT":
-			if (isMotorway()) {
-				return "green"; // Green for motorways in IT
-			} else if (isFreeway()) {
-				return "blue"; // Blue for freeways in IT
-			} else {
-				return "white"; // Default color for other highways in IT
-			}
-		case "US":
-			if (isMotorway()) {
-				return "green"; // Green for motorways in and US
-			}
-			break;
 		}
 		return "blue";
 	}

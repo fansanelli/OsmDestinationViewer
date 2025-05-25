@@ -16,7 +16,7 @@ class OsmDestinationViewerTest {
 		tags.put("information", "guidepost");
 		tags.put("destination", "Bait dei Aiseli 1:30;Malga Bodrina 2:30|Cima Roccapiana 3:45");
 
-		String svg = OsmDestinationViewer.getSignpost(tags);
+		String svg = new OsmDestinationViewer(tags, null).setCompact(false).getSvg();
 
 		assertTrue(svg.startsWith("<svg"));
 		assertTrue(svg.contains("Bait dei Aiseli 1:30"));
@@ -30,7 +30,7 @@ class OsmDestinationViewerTest {
 		Map<String, String> tags = new HashMap<>();
 		tags.put("tourism", "information");
 		tags.put("information", "guidepost");
-		Exception exception = assertThrows(Exception.class, () -> OsmDestinationViewer.getSignpost(tags));
+		Exception exception = assertThrows(Exception.class, () -> new OsmDestinationViewer(tags, null).setCompact(false).getSvg());
 		assertEquals("Guidepost without destination", exception.getMessage());
 	}
 
@@ -43,7 +43,7 @@ class OsmDestinationViewerTest {
 		tags.put("direction_north:ref", "Eu;ERS;D8;D7;EV15");
 		tags.put("direction_north:symbol", "train_station;none");
 
-		String svg = OsmDestinationViewer.getSignpost(tags);
+		String svg = new OsmDestinationViewer(tags, null).setCompact(false).getSvg();
 
 		assertTrue(svg.startsWith("<svg"));
 		assertTrue(svg.contains("(Bf) Stadtmitte 10 km"));

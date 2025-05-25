@@ -10,9 +10,6 @@ abstract class RoadSignpost implements Signpost {
 	protected String countryCode;
 
 	RoadSignpost(Map<String, String> tags, String countryCode) throws Exception {
-		if (countryCode == null || countryCode.isEmpty()) {
-			countryCode = "IT"; // Default to IT if not specified
-		}
 		this.tags = tags;
 		this.countryCode = countryCode;
 	}

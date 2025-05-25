@@ -81,7 +81,7 @@ class GuidepostSign implements Signpost {
 
 		int numLines = 0;
 		for (Lane lane : lanes)
-			numLines += lane.destinations.length;
+			numLines += lane.getDestinations().length;
 		int height = numLines * lineHeight + 10;
 
 		StringBuilder svg = new StringBuilder();
@@ -95,7 +95,7 @@ class GuidepostSign implements Signpost {
 					.append(lane.getDirection()).append("</text>");
 				y += lineHeight;
 			}
-			for (Destination dest : lane.destinations) {
+			for (Destination dest : lane.getDestinations()) {
 				String text = dest.getName();
 				String style = "";
 				if (text.length() > maxChars) {

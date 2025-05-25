@@ -4,8 +4,8 @@ package dev.pengunaria.osmdestinationviewer;
  * Class representing a single lane in a road or path.
  */
 class Lane {
-	Destination[] destinations;
-	Direction direction;
+	private Destination[] destinations;
+	private Direction direction;
 
 	Lane(Destination[] destinations, Direction direction) {
 		this.destinations = destinations;
