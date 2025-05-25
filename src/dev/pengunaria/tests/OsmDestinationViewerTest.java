@@ -84,4 +84,24 @@ class OsmDestinationViewerTest {
 		assertTrue(svg.contains("Allentown"));
 		assertTrue(svg.endsWith("</svg>"));
 	}
+	
+	@Test
+	void testAutostrade() throws Exception {
+		Map<String, String> tags = new HashMap<>();
+		tags.put("highway", "motorway_link");
+		tags.put("oneway", "yes");
+		tags.put("destination", "MESTRE;ospedale;CASTELFRANCO V");
+		tags.put("destination:street", "Via Castellana;;");
+		tags.put("destination:colour", "white;white;blue");
+		tags.put("destination:symbol", "centre;hospital;");
+
+		String svg = new OsmDestinationViewer(tags, "IT").setCompact(false).getSvg();
+
+		assertTrue(svg.startsWith("<svg"));
+		assertTrue(svg.contains("MESTRE"));
+		assertTrue(svg.contains("ospedale"));
+		assertTrue(svg.contains("CASTELFRANCO V"));
+		assertTrue(svg.endsWith("</svg>"));
+	}
+
 }

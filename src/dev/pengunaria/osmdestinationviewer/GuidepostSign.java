@@ -52,7 +52,7 @@ class GuidepostSign implements Signpost {
 						destinations[j] = new Destination(destinationsStr[j]);
 					}
 					if (tags.containsKey(tag + ":symbol")) {
-						String[] symbols = tags.get(tag + ":symbol").split(";");
+						String[] symbols = tags.get(tag + ":symbol").split(";", -1);
 						if (symbols.length != destinations.length) {
 							throw new Exception(
 									"Number of symbols does not match number of destinations for tag: " + tag);
