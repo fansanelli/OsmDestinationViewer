@@ -72,7 +72,8 @@ class GuidepostSign implements Signpost {
 		}
 	}
 
-	public String toSvg() {
+	@Override
+	public String toSvg(boolean compact) {
 		final int width = 220;
 		final int lineHeight = 20;
 		final int maxChars = 28; // soglia per comprimere il testo
