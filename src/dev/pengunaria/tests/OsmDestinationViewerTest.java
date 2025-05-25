@@ -30,7 +30,8 @@ class OsmDestinationViewerTest {
 		Map<String, String> tags = new HashMap<>();
 		tags.put("tourism", "information");
 		tags.put("information", "guidepost");
-		Exception exception = assertThrows(Exception.class, () -> new OsmDestinationViewer(tags, null).setCompact(false).getSvg());
+		Exception exception = assertThrows(Exception.class,
+				() -> new OsmDestinationViewer(tags, null).setCompact(false).getSvg());
 		assertEquals("Guidepost without destination", exception.getMessage());
 	}
 
@@ -49,6 +50,38 @@ class OsmDestinationViewerTest {
 		assertTrue(svg.contains("(Bf) Stadtmitte 10 km"));
 		assertTrue(svg.contains("Holthausen 2.0 km"));
 		assertFalse(svg.contains("KP 11"));
+		assertTrue(svg.endsWith("</svg>"));
+	}
+
+	@Test
+	void testSimpleExit() throws Exception {
+		Map<String, String> tags = new HashMap<>();
+		tags.put("highway", "motorway_link");
+		tags.put("oneway", "yes");
+		tags.put("destination", "Saint-Valérien-de-Milton");
+		tags.put("destination:ref", "211 Sud");
+
+		String svg = new OsmDestinationViewer(tags, "CA").setCompact(false).getSvg();
+
+		assertTrue(svg.startsWith("<svg"));
+		assertTrue(svg.contains("Saint-Valérien-de-Milton"));
+		assertTrue(svg.endsWith("</svg>"));
+	}
+
+	@Test
+	void testTwoDestinationsOneRef() throws Exception {
+		Map<String, String> tags = new HashMap<>();
+		tags.put("highway", "motorway_link");
+		tags.put("oneway", "yes");
+		tags.put("destination", "Hazleton;Allentown");
+		tags.put("destination:ref", "I 81 North");
+		tags.put("destination:ref:to", "I 78");
+
+		String svg = new OsmDestinationViewer(tags, "US").setCompact(false).getSvg();
+
+		assertTrue(svg.startsWith("<svg"));
+		assertTrue(svg.contains("Hazleton"));
+		assertTrue(svg.contains("Allentown"));
 		assertTrue(svg.endsWith("</svg>"));
 	}
 }
