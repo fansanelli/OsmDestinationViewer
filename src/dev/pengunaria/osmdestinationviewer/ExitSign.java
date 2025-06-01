@@ -1,6 +1,18 @@
 package dev.pengunaria.osmdestinationviewer;
 
+import java.io.StringWriter;
 import java.util.Map;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * Class representing a simple exit information sign
@@ -87,7 +99,6 @@ class ExitSign extends RoadSignpost {
 	public String toSvg(boolean compact) {
 		final int width = 220;
 		final int lineHeight = 20;
-		final int maxChars = 28; // soglia per comprimere il testo
 		int y = 15;
 
 		// Calcola l'altezza totale tenendo conto delle street
@@ -100,57 +111,80 @@ class ExitSign extends RoadSignpost {
 		}
 		int height = numLines * lineHeight + 10;
 
-		StringBuilder svg = new StringBuilder();
-		svg.append("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"").append(width).append("\" height=\"")
-				.append(height).append("\" viewBox=\"0 0 ").append(width).append(" ").append(height).append("\">");
+		try {
+			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+			Document doc = dBuilder.newDocument();
 
-		// Sfondo rettangolare colorato
-		svg.append("<rect x=\"0\" y=\"0\" width=\"").append(width).append("\" height=\"").append(height)
-			.append("\" fill=\"").append(getBackgroundColor()).append("\"/>");
+			Element svg = doc.createElement("svg");
+			svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+			svg.setAttribute("width", String.valueOf(width));
+			svg.setAttribute("height", String.valueOf(height));
+			svg.setAttribute("viewBox", "0 0 " + width + " " + height);
+			doc.appendChild(svg);
 
-		svg.append("<g class=\"lane\">\n");
-		String arrow = lane.getDirection() != null ? lane.getDirection().toString() : "";
-		for (Destination dest : lane.getDestinations()) {
-			String text = dest.getName();
-			String style = "";
-			if (text.length() > maxChars) {
-				style = " style=\"letter-spacing:-1.5px;\"";
+			Element rect = doc.createElement("rect");
+			rect.setAttribute("x", "0");
+			rect.setAttribute("y", "0");
+			rect.setAttribute("width", String.valueOf(width));
+			rect.setAttribute("height", String.valueOf(height));
+			rect.setAttribute("fill", getBackgroundColor().toString());
+			svg.appendChild(rect);
+
+			int currentY = y;
+			for (Destination dest : lane.getDestinations()) {
+				boolean hasColor = dest.getColor() != null && !dest.getColor().isEmpty();
+				boolean hasStreet = dest.getStreet() != null && !dest.getStreet().isEmpty();
+				String textColor = hasColor ? dest.getColor().getContrastColor()
+						: getBackgroundColor().getContrastColor();
+
+				if (hasColor) {
+					int rectHeight = hasStreet ? lineHeight * 2 : lineHeight;
+					Element innerRect = doc.createElement("rect");
+					innerRect.setAttribute("x", "5");
+					innerRect.setAttribute("y", String.valueOf(currentY - lineHeight + 5));
+					innerRect.setAttribute("width", String.valueOf(width - 10));
+					innerRect.setAttribute("height", String.valueOf(rectHeight));
+					innerRect.setAttribute("rx", "4");
+					innerRect.setAttribute("fill", dest.getColor().toString());
+					svg.appendChild(innerRect);
+				}
+
+				Element textElem = doc.createElement("text");
+				textElem.setAttribute("x", "10");
+				textElem.setAttribute("y", String.valueOf(currentY));
+				textElem.setAttribute("fill", textColor);
+				String arrow = lane.getDirection() != null ? lane.getDirection().toString() : "";
+				String text = dest.getName();
+				if (lane.getDirection() == Direction.LEFT) {
+					textElem.setTextContent(arrow + " " + text);
+				} else {
+					textElem.setTextContent(text + " " + arrow);
+				}
+				svg.appendChild(textElem);
+
+				if (hasStreet) {
+					currentY += lineHeight;
+					Element streetElem = doc.createElement("text");
+					streetElem.setAttribute("x", "20");
+					streetElem.setAttribute("y", String.valueOf(currentY));
+					streetElem.setAttribute("fill", textColor);
+					streetElem.setAttribute("font-size", "14");
+					streetElem.setTextContent(dest.getStreet());
+					svg.appendChild(streetElem);
+				}
+				currentY += lineHeight;
 			}
 
-			boolean hasColor = dest.getColor() != null && !dest.getColor().isEmpty();
-			boolean hasStreet = dest.getStreet() != null && !dest.getStreet().isEmpty();
-
-			// Calcola il colore del testo
-			String textColor = hasColor ? dest.getColor().getContrastColor() : getBackgroundColor().getContrastColor();
-
-			// Rettangolo colorato per il name (e street se presente)
-			if (hasColor) {
-				int rectHeight = hasStreet ? lineHeight * 2 : lineHeight;
-				svg.append("<rect x=\"5\" y=\"").append(y - lineHeight + 5).append("\" width=\"")
-					.append(width - 10).append("\" height=\"").append(rectHeight).append("\" rx=\"4\" fill=\"")
-					.append(dest.getColor()).append("\"/>");
-			}
-
-			// Testo principale (name)
-			if (lane.getDirection() == Direction.LEFT) {
-				svg.append("<text x=\"10\" y=\"").append(y).append("\"").append(style).append(" fill=\"").append(textColor).append("\">")
-					.append(arrow).append(" ").append(text).append("</text>");
-			} else {
-				svg.append("<text x=\"10\" y=\"").append(y).append("\"").append(style).append(" fill=\"").append(textColor).append("\">")
-					.append(text).append(" ").append(arrow).append("</text>");
-			}
-
-			// Street sotto il name, dentro lo stesso rect se presente
-			if (hasStreet) {
-				y += lineHeight;
-				// Il colore del testo della street segue la stessa logica del name
-				svg.append("<text x=\"20\" y=\"").append(y).append("\" fill=\"").append(textColor).append("\" font-size=\"14\">")
-					.append(dest.getStreet()).append("</text>");
-			}
-			y += lineHeight;
+			// Serializza il DOM in stringa
+			TransformerFactory tf = TransformerFactory.newInstance();
+			Transformer transformer = tf.newTransformer();
+			transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+			StringWriter writer = new StringWriter();
+			transformer.transform(new DOMSource(doc), new StreamResult(writer));
+			return writer.getBuffer().toString();
+		} catch (Exception e) {
+			throw new RuntimeException("SVG generation failed", e);
 		}
-		svg.append("</g>");
-		svg.append("</svg>");
-		return svg.toString();
 	}
 }

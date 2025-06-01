@@ -119,4 +119,19 @@ class OsmDestinationViewerTest {
 		assertTrue(svg.endsWith("</svg>"));
 	}
 
+	@Test
+	void testXSS() throws Exception {
+		Map<String, String> tags = new HashMap<>();
+		tags.put("highway", "motorway_link");
+		tags.put("oneway", "yes");
+		tags.put("destination", "<NOWHERE>");
+
+		String svg = new OsmDestinationViewer(tags, "IT").setCompact(false).getSvg();
+
+		assertTrue(svg.startsWith("<svg"));
+		assertFalse(svg.contains("<NOWHERE>")); // non deve essere presente
+		assertTrue(svg.contains("&lt;NOWHERE&gt;")); // deve essere sanificato
+		assertTrue(svg.endsWith("</svg>"));
+	}
+
 }
