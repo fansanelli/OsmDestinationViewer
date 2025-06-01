@@ -74,7 +74,7 @@ class ExitSign extends RoadSignpost {
 							"Number of colors does not match number of destinations for tag: destination:colour");
 				}
 				for (int j = 0; j < colors.length; j++) {
-					destinations[j].setColor(colors[j]);
+					destinations[j].setColor(new SignColor(colors[j]));
 				}
 			}
 			this.lane = new Lane(destinations, this.isLeftDriving() ? Direction.LEFT : Direction.RIGHT);
@@ -120,13 +120,8 @@ class ExitSign extends RoadSignpost {
 			boolean hasColor = dest.getColor() != null && !dest.getColor().isEmpty();
 			boolean hasStreet = dest.getStreet() != null && !dest.getStreet().isEmpty();
 
-			// Calcola il colore del testo: se il rect immediatamente sotto è bianco, testo nero, altrimenti bianco
-			String textColor = "white";
-			if (hasColor && dest.getColor().equalsIgnoreCase("white")) {
-				textColor = "black";
-			} else if (!hasColor && getBackgroundColor().equalsIgnoreCase("white")) {
-				textColor = "black";
-			}
+			// Calcola il colore del testo
+			String textColor = hasColor ? dest.getColor().getContrastColor() : getBackgroundColor().getContrastColor();
 
 			// Rettangolo colorato per il name (e street se presente)
 			if (hasColor) {

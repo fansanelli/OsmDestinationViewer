@@ -9,7 +9,7 @@ class Destination {
 	private String symbol;
 	private String intRef;
 	private String street;
-	private String color;
+	private SignColor color;
 
 	Destination(String name) {
 		this.name = name;
@@ -50,10 +50,10 @@ class Destination {
 		this.street = street;
 	}
 
-	public String getColor() {
+	public SignColor getColor() {
 		return color;
 	}
-	public void setColor(String color) {
+	public void setColor(SignColor color) {
 		this.color = color;
 	}
 }

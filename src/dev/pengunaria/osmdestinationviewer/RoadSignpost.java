@@ -93,34 +93,33 @@ abstract class RoadSignpost implements Signpost {
 		return false; // Default to right driving
 	}
 
-	protected String getBackgroundColor() {
+	protected SignColor getBackgroundColor() {
 		/**
 		 * Vedi: https://wiki.openstreetmap.org/wiki/Key:destination:colour
 		 */
+		String backgroundColor = "white";
 		if (this.countryCode != null) {
 			switch (this.countryCode.toUpperCase()) {
 			case "DE": // Germany
 				if (isMotorway()) {
-					return "blue";
+					backgroundColor = "blue";
 				}
 				break;
 			case "IT": // Italy
 				if (isMotorway()) {
-					return "green";
+					backgroundColor = "green";
 				} else if (isFreeway()) {
-					return "blue";
-				} else {
-					return "white";
+					backgroundColor = "blue";
 				}
 			case "CA": // Canada
 			case "US": // United States
 				if (isMotorway()) {
-					return "green";
+					backgroundColor = "green";
 				}
 				break;
 			}
 		}
-		return "white";
+		return new SignColor(backgroundColor);
 	}
 
 	protected boolean isMotorway() {

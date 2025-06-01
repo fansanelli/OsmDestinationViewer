@@ -104,4 +104,19 @@ class OsmDestinationViewerTest {
 		assertTrue(svg.endsWith("</svg>"));
 	}
 
+	@Test
+	void testHexColor() throws Exception {
+		Map<String, String> tags = new HashMap<>();
+		tags.put("highway", "motorway_link");
+		tags.put("oneway", "yes");
+		tags.put("destination", "HEX");
+		tags.put("destination:colour", "#F0E060");
+
+		String svg = new OsmDestinationViewer(tags, "IT").setCompact(false).getSvg();
+
+		assertTrue(svg.startsWith("<svg"));
+		assertTrue(svg.contains("#f0e060"));
+		assertTrue(svg.endsWith("</svg>"));
+	}
+
 }
