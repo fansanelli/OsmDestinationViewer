@@ -109,8 +109,8 @@ class OsmDestinationViewerTest {
 		Map<String, String> tags = new HashMap<>();
 		tags.put("highway", "motorway_link");
 		tags.put("oneway", "yes");
-		tags.put("destination", "HEX");
-		tags.put("destination:colour", "#F0E060");
+		tags.put("destination", "HEX;NOWHERE");
+		tags.put("destination:colour", "#F0E060;none");
 
 		String svg = new OsmDestinationViewer(tags, "IT").setCompact(false).getSvg();
 

@@ -119,7 +119,11 @@ abstract class RoadSignpost implements Signpost {
 				break;
 			}
 		}
-		return new SignColor(backgroundColor);
+		try {
+			return new SignColor(backgroundColor);
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
 	protected boolean isMotorway() {
