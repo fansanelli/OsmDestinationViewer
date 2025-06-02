@@ -77,54 +77,38 @@ class GuidepostSign implements Signpost {
 
 	@Override
 	public String toSvg(boolean compact) {
-		final int width = 220;
-		final int arrowHeight = 60;
-		final int arrowSpacing = 10;
-		java.util.List<Destination> allDest = new java.util.ArrayList<>();
-		for (Lane lane : lanes) {
-			for (Destination dest : lane.getDestinations()) {
-				allDest.add(dest);
-			}
-		}
-		int numArrows = (int) Math.ceil(allDest.size() / 3.0);
-		int height = numArrows * arrowHeight + (numArrows - 1) * arrowSpacing + 10;
 		try {
 			Document doc = SvgUtils.getNewDocument();
 
 			Element svg = doc.createElementNS("http://www.w3.org/2000/svg", "svg");
-			svg.setAttribute("width", String.valueOf(width));
-			svg.setAttribute("height", String.valueOf(height));
-			svg.setAttribute("viewBox", "0 0 " + width + " " + height);
-			doc.appendChild(svg);
+			final int docWidth = 220;
+			final int arrowHeight = 60;
+			int y = 5; // Initial Document height
+			for (Lane lane : lanes) {
+				for (int i = 0; i < lane.getDestinations().length; i += 3) {
+					Element arrow = SvgUtils.getArrow(doc, 5, y, 210, arrowHeight, false);
+					for (int j = 0; j < 3; j++) {
+						if (i + j >= lane.getDestinations().length)
+							break;
 
-			int y = 5;
-			for (int i = 0; i < allDest.size(); i += 3) {
-				String[] lines = new String[3];
-				for (int j = 0; j < 3; j++) {
-					if (i + j < allDest.size()) {
-						lines[j] = allDest.get(i + j).getName();
-					} else {
-						lines[j] = "";
+						Element textEl = doc.createElementNS("http://www.w3.org/2000/svg", "text");
+						textEl.setAttribute("x", String.valueOf(10));
+						textEl.setAttribute("y", String.valueOf(20 + j * 15)); // 15 = textSpacing
+						textEl.setAttribute("text-anchor", "left");
+						textEl.setAttribute("alignment-baseline", "left");
+						textEl.setAttribute("font-size", "13");
+						textEl.setTextContent(lane.getDestinations()[i + j].getName());
+						arrow.appendChild(textEl);
 					}
+					svg.appendChild(arrow);
+					y += arrowHeight + 5;
 				}
-				Element arrow = SvgUtils.getArrow(doc, 10, y, false);
-				// Aggiungi i <text> direttamente qui
-				int textSpacing = 15;
-				int arrowWidth = 200;
-				for (int t = 0; t < 3; t++) {
-					Element textEl = doc.createElementNS("http://www.w3.org/2000/svg", "text");
-					textEl.setAttribute("x", String.valueOf(arrowWidth / 2));
-					textEl.setAttribute("y", String.valueOf(20 + t * textSpacing));
-					textEl.setAttribute("text-anchor", "middle");
-					textEl.setAttribute("alignment-baseline", "middle");
-					textEl.setAttribute("font-size", "13");
-					textEl.setTextContent(lines[t]);
-					arrow.appendChild(textEl);
-				}
-				svg.appendChild(arrow);
-				y += arrowHeight + arrowSpacing;
 			}
 
+			svg.setAttribute("width", String.valueOf(docWidth));
+			svg.setAttribute("height", String.valueOf(y + 5));
+			svg.setAttribute("viewBox", "0 0 " + docWidth + " " + (y + 5));
+			doc.appendChild(svg);
 			return SvgUtils.serializeDocument(doc);
 		} catch (Exception e) {
 			throw new RuntimeException("SVG generation failed", e);

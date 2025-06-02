@@ -38,12 +38,12 @@ class SvgUtils {
 	 * @param doc       Document SVG
 	 * @param x         posizione x
 	 * @param y         posizione y
+	 * @param width     Arrow width
+	 * @param height    Arrow height
 	 * @param leftwards true per freccia verso sinistra, false per destra
 	 */
-	public static Element getArrow(Document doc, int x, int y, boolean leftwards) {
-		int width = 200;
-		int height = 60;
-		int arrowHead = 30;
+	public static Element getArrow(Document doc, int x, int y, int width, int height, boolean leftwards) {
+		int arrowHead = height / 2;
 		Element g = doc.createElementNS("http://www.w3.org/2000/svg", "g");
 		g.setAttribute("class", "guidepost-arrow");
 		g.setAttribute("transform", "translate(" + x + "," + y + ")");
