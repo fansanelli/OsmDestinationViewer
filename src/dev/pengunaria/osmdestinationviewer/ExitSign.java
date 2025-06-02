@@ -1,15 +1,6 @@
 package dev.pengunaria.osmdestinationviewer;
 
-import java.io.StringWriter;
 import java.util.Map;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -112,9 +103,7 @@ class ExitSign extends RoadSignpost {
 		int height = numLines * lineHeight + 10;
 
 		try {
-			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-			Document doc = dBuilder.newDocument();
+			Document doc = SvgUtils.getNewDocument();
 
 			Element svg = doc.createElement("svg");
 			svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
@@ -176,13 +165,7 @@ class ExitSign extends RoadSignpost {
 				currentY += lineHeight;
 			}
 
-			// Serializza il DOM in stringa
-			TransformerFactory tf = TransformerFactory.newInstance();
-			Transformer transformer = tf.newTransformer();
-			transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-			StringWriter writer = new StringWriter();
-			transformer.transform(new DOMSource(doc), new StreamResult(writer));
-			return writer.getBuffer().toString();
+			return SvgUtils.serializeDocument(doc);
 		} catch (Exception e) {
 			throw new RuntimeException("SVG generation failed", e);
 		}

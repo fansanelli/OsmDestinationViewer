@@ -1,8 +1,11 @@
 package dev.pengunaria.osmdestinationviewer;
 
-import java.util.Map;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 class GuidepostSign implements Signpost {
 	private static final String[] directionTags = { "direction_north", "direction_east", "direction_south",
@@ -75,39 +78,56 @@ class GuidepostSign implements Signpost {
 	@Override
 	public String toSvg(boolean compact) {
 		final int width = 220;
-		final int lineHeight = 20;
-		final int maxChars = 28; // soglia per comprimere il testo
-		int y = 15;
-
-		int numLines = 0;
-		for (Lane lane : lanes)
-			numLines += lane.getDestinations().length;
-		int height = numLines * lineHeight + 10;
-
-		StringBuilder svg = new StringBuilder();
-		svg.append("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"").append(width).append("\" height=\"")
-				.append(height).append("\" viewBox=\"0 0 ").append(width).append(" ").append(height).append("\">");
-
+		final int arrowHeight = 60;
+		final int arrowSpacing = 10;
+		java.util.List<Destination> allDest = new java.util.ArrayList<>();
 		for (Lane lane : lanes) {
-			svg.append("<g class=\"lane\">");
-			if (lane.getDirection() != null) {
-				svg.append("<text x=\"10\" y=\"").append(y).append("\" font-weight=\"bold\" fill=\"#555\">")
-					.append(lane.getDirection()).append("</text>");
-				y += lineHeight;
-			}
 			for (Destination dest : lane.getDestinations()) {
-				String text = dest.getName();
-				String style = "";
-				if (text.length() > maxChars) {
-					style = " style=\"letter-spacing:-1.5px;\"";
-				}
-				svg.append("<text x=\"10\" y=\"").append(y).append("\"").append(style).append(">").append(text)
-						.append("</text>");
-				y += lineHeight;
+				allDest.add(dest);
 			}
-			svg.append("</g>");
 		}
-		svg.append("</svg>");
-		return svg.toString();
+		int numArrows = (int) Math.ceil(allDest.size() / 3.0);
+		int height = numArrows * arrowHeight + (numArrows - 1) * arrowSpacing + 10;
+		try {
+			Document doc = SvgUtils.getNewDocument();
+
+			Element svg = doc.createElementNS("http://www.w3.org/2000/svg", "svg");
+			svg.setAttribute("width", String.valueOf(width));
+			svg.setAttribute("height", String.valueOf(height));
+			svg.setAttribute("viewBox", "0 0 " + width + " " + height);
+			doc.appendChild(svg);
+
+			int y = 5;
+			for (int i = 0; i < allDest.size(); i += 3) {
+				String[] lines = new String[3];
+				for (int j = 0; j < 3; j++) {
+					if (i + j < allDest.size()) {
+						lines[j] = allDest.get(i + j).getName();
+					} else {
+						lines[j] = "";
+					}
+				}
+				Element arrow = SvgUtils.getArrow(doc, 10, y, false);
+				// Aggiungi i <text> direttamente qui
+				int textSpacing = 15;
+				int arrowWidth = 200;
+				for (int t = 0; t < 3; t++) {
+					Element textEl = doc.createElementNS("http://www.w3.org/2000/svg", "text");
+					textEl.setAttribute("x", String.valueOf(arrowWidth / 2));
+					textEl.setAttribute("y", String.valueOf(20 + t * textSpacing));
+					textEl.setAttribute("text-anchor", "middle");
+					textEl.setAttribute("alignment-baseline", "middle");
+					textEl.setAttribute("font-size", "13");
+					textEl.setTextContent(lines[t]);
+					arrow.appendChild(textEl);
+				}
+				svg.appendChild(arrow);
+				y += arrowHeight + arrowSpacing;
+			}
+
+			return SvgUtils.serializeDocument(doc);
+		} catch (Exception e) {
+			throw new RuntimeException("SVG generation failed", e);
+		}
 	}
 }
