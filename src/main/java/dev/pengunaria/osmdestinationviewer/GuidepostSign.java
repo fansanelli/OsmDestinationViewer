@@ -105,12 +105,12 @@ class GuidepostSign implements Signpost {
 			Document doc = SvgUtils.getNewDocument();
 
 			Element svg = doc.createElementNS("http://www.w3.org/2000/svg", "svg");
-			final int docWidth = 220;
+			final int docWidth = 320;
 			final int arrowHeight = 60;
 			int y = 5; // Initial Document height
 			for (Lane lane : lanes) {
 				for (int i = 0; i < lane.getDestinations().length; i += 3) {
-					Element arrow = SvgUtils.getArrow(doc, 5, y, 210, arrowHeight, false);
+					Element arrow = SvgUtils.getArrow(doc, 5, y, 310, arrowHeight, false);
 					for (int j = 0; j < 3; j++) {
 						if (i + j >= lane.getDestinations().length)
 							break;
@@ -118,8 +118,8 @@ class GuidepostSign implements Signpost {
 						Element textEl = doc.createElementNS("http://www.w3.org/2000/svg", "text");
 						textEl.setAttribute("x", String.valueOf(10));
 						textEl.setAttribute("y", String.valueOf(20 + j * 15)); // 15 = textSpacing
-						textEl.setAttribute("text-anchor", "left");
-						textEl.setAttribute("alignment-baseline", "left");
+						textEl.setAttribute("text-anchor", "start");
+						textEl.setAttribute("alignment-baseline", "middle");
 						textEl.setAttribute("font-size", "13");
 						textEl.setTextContent(lane.getDestinations()[i + j].getName());
 						arrow.appendChild(textEl);
