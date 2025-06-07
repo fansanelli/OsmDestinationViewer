@@ -1,13 +1,15 @@
-package dev.pengunaria.tests;
-
-import dev.pengunaria.osmdestinationviewer.*;
-import org.junit.jupiter.api.Test;
-import java.util.HashMap;
-import java.util.Map;
+package test.java.dev.pengunaria.osmdestinationviewer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class OsmDestinationViewerTest {
+import java.util.HashMap;
+import java.util.Map;
+
+import org.junit.jupiter.api.Test;
+
+import main.java.dev.pengunaria.osmdestinationviewer.OsmDestinationViewer;
+
+public class OsmDestinationViewerTest {
 
 	@Test
 	void testGuidepostSignWithPipeAndSemicolon() throws Exception {

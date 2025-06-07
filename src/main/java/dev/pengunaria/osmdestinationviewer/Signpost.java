@@ -1,4 +1,4 @@
-package dev.pengunaria.osmdestinationviewer;
+package main.java.dev.pengunaria.osmdestinationviewer;
 
 /**
  * Interface to be implemented by classes representing signposts.

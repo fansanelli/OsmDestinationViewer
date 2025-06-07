@@ -1,4 +1,4 @@
-package dev.pengunaria.osmdestinationviewer;
+package main.java.dev.pengunaria.osmdestinationviewer;
 
 /**
  * Class representing a single lane in a road or path.

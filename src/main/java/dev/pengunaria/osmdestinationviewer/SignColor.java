@@ -1,4 +1,4 @@
-package dev.pengunaria.osmdestinationviewer;
+package main.java.dev.pengunaria.osmdestinationviewer;
 
 /**
  * Class representing a color for a destination sign
