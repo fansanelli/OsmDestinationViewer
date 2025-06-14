@@ -104,7 +104,7 @@ class ExitSign extends RoadSignpost {
 					destinations[j].setColor(new SignColor(colors[j]));
 				}
 			}
-			this.lane = new Lane(destinations, this.isLeftDriving() ? Direction.LEFT : Direction.RIGHT);
+			this.lane = new Lane(destinations, this.isLeftDriving() ? Direction.LEFT : Direction.RIGHT, null);
 		} else {
 			throw new Exception("Highway without destination");
 		}

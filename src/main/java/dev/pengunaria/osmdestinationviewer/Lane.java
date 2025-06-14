@@ -30,14 +30,19 @@ package main.java.dev.pengunaria.osmdestinationviewer;
 class Lane {
 	private Destination[] destinations;
 	private Direction direction;
-
-	Lane(Destination[] destinations, Direction direction) {
+	/**
+	 * Applicable for Guideposts and Lane signs.
+	 */
+	private String[] ref;
+	
+	Lane(Destination[] destinations, Direction direction, String[] ref) {
 		this.destinations = destinations;
 		this.direction = direction;
+		this.ref = ref;
 	}
 
 	Lane(Destination[] destinations) {
-		this(destinations, null);
+		this(destinations, null, null);
 	}
 
 	public Destination[] getDestinations() {
@@ -52,5 +57,12 @@ class Lane {
 	}
 	public void setDirection(Direction direction) {
 		this.direction = direction;
+	}
+
+	public String[] getRef() {
+		return ref;
+	}
+	public void setRef(String[] ref) {
+		this.ref = ref;
 	}
 }

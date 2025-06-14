@@ -29,6 +29,9 @@ package main.java.dev.pengunaria.osmdestinationviewer;
  */
 class Destination {
 	private String name;
+	/**
+	 * Applicable only for Exit signs.
+	 */
 	private String ref;
 	private String symbol;
 	private String intRef;

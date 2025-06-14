@@ -88,8 +88,9 @@ class GuidepostSign implements Signpost {
 							destinations[j].setSymbol(symbols[j]);
 						}
 					}
-					laneList.add(
-							new Lane(destinations, Direction.valueOf(tag.replace("direction_", "").toUpperCase())));
+					String[] ref = (tags.containsKey(tag + ":ref")) ? tags.get(tag + ":ref").split(";") : null;
+					laneList.add(new Lane(destinations, Direction.valueOf(tag.replace("direction_", "").toUpperCase()),
+							ref));
 				}
 			}
 			this.lanes = laneList.toArray(new Lane[0]);
