@@ -136,4 +136,26 @@ public class OsmDestinationViewerTest {
 		assertTrue(svg.endsWith("</svg>"));
 	}
 
+	
+	@Test
+	void testLanes() throws Exception {
+		Map<String, String> tags = new HashMap<>();
+		tags.put("highway", "motorway");
+		tags.put("lanes", "5");
+		tags.put("destination:lanes", "Oberhausen;Düsseldorf;Köln-Nord|Oberhausen;Düsseldorf;Köln-Nord|Oberhausen;Düsseldorf;Köln-Nord|K-Zentrum|Olpe;Gummersbach");
+		tags.put("destination:ref:lanes", "A 3|A 3|A 3||A 4");
+
+		String svg = new OsmDestinationViewer(tags, "DE").setCompact(false).getSvg();
+
+		assertTrue(svg.startsWith("<svg"));
+		assertTrue(svg.endsWith("</svg>"));
+
+		// Verifica che tutte le destinazioni siano presenti
+		assertTrue(svg.contains("Oberhausen"));
+		assertTrue(svg.contains("Düsseldorf"));
+		assertTrue(svg.contains("Köln-Nord"));
+		assertTrue(svg.contains("K-Zentrum"));
+		assertTrue(svg.contains("Olpe"));
+		assertTrue(svg.contains("Gummersbach"));
+	}	
 }
