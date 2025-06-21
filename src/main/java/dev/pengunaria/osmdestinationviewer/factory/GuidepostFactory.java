@@ -35,6 +35,12 @@ import main.java.dev.pengunaria.osmdestinationviewer.model.Signpost;
 import main.java.dev.pengunaria.osmdestinationviewer.render.GuidepostRenderer;
 import main.java.dev.pengunaria.osmdestinationviewer.render.Renderable;
 
+/**
+ * Factory for creating Guidepost renderers from OSM tags.
+ *
+ * References: https://wiki.openstreetmap.org/wiki/IT:CAI#Luoghi_di_posa
+ * https://wiki.openstreetmap.org/wiki/Key:direction_north
+ */
 public class GuidepostFactory implements Factory {
 	private static final String[] directionTags = { "direction_north", "direction_east", "direction_south",
 			"direction_west", "direction_northeast", "direction_northwest", "direction_southeast",
@@ -44,8 +50,6 @@ public class GuidepostFactory implements Factory {
 	public Renderable createRenderer(Map<String, String> tags, String countryCode) throws Exception {
 		Lane[] lanes;
 		/**
-		 * Vedi: https://wiki.openstreetmap.org/wiki/IT:CAI#Luoghi_di_posa
-		 * 
 		 * Ogni destinazione inserita all'interno di una freccia deve essere separata da
 		 * punto e virgola (;), la successiva freccia deve essere separata dalla prima
 		 * con un "pipe" (|).
@@ -65,15 +69,10 @@ public class GuidepostFactory implements Factory {
 				lanes[i] = new Lane(destinations);
 			}
 		} else {
-			/**
-			 * Vedi: https://wiki.openstreetmap.org/wiki/Key:direction_north
-			 */
 			List<Lane> laneList = new ArrayList<>();
 			for (String tag : directionTags) {
 				if (tags.containsKey(tag)) {
-					// Rimuovi tutte le destinazioni "KP <numero>" dalla stringa prima di splittare
 					String cleaned = tags.get(tag).replaceAll("(^|;)\\s*KP \\d+\\s*(;|$)", ";");
-					// Rimuovi eventuali punti e virgola multipli o ai bordi
 					cleaned = cleaned.replaceAll(";+", ";").replaceAll("^;|;$", "");
 					if (cleaned.isEmpty())
 						continue;
@@ -101,9 +100,8 @@ public class GuidepostFactory implements Factory {
 			lanes = laneList.toArray(new Lane[0]);
 		}
 		if (lanes.length == 0) {
-			throw new Exception("Guidepost without destination");
+			throw new IllegalArgumentException("Guidepost without destination");
 		}
-
 		Signpost signpost = new Signpost();
 		signpost.setLanes(lanes);
 		return new GuidepostRenderer(signpost);

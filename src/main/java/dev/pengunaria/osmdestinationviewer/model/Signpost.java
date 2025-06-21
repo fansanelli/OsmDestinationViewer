@@ -28,7 +28,13 @@ package main.java.dev.pengunaria.osmdestinationviewer.model;
  * Class representing a signpost.
  */
 public class Signpost {
+	/**
+	 * Lanes included in this signpost.
+	 */
 	private Lane[] lanes;
+	/**
+	 * Background color for the signpost (optional).
+	 */
 	private SignColor backgroundColor;
 
 	public Lane[] getLanes() {

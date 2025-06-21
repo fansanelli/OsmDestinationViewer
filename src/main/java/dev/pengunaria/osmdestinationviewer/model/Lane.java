@@ -28,10 +28,17 @@ package main.java.dev.pengunaria.osmdestinationviewer.model;
  * Class representing a single lane in a road or path.
  */
 public class Lane {
+	/**
+	 * Destinations for this lane.
+	 */
 	private Destination[] destinations;
+	/**
+	 * Direction for this lane (optional).
+	 */
 	private Direction direction;
 	/**
-	 * Applicable for Guideposts and Lane signs.
+	 * Reference(s) for this lane (optional, applicable for Guideposts and Lane
+	 * signs).
 	 */
 	private String[] ref;
 

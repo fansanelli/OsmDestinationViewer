@@ -35,7 +35,7 @@ import main.java.dev.pengunaria.osmdestinationviewer.render.Renderable;
 public class Dispatcher {
 	public Renderable dispatch(Map<String, String> tags, String countryCode) throws Exception {
 		if (tags == null || tags.size() == 0)
-			throw new Exception("Tags is null or empty");
+			throw new IllegalArgumentException("Tags is null or empty");
 
 		Factory f;
 		if (isGuidepost(tags)) {

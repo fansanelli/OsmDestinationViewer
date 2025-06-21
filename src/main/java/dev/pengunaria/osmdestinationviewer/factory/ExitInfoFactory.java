@@ -35,86 +35,88 @@ import main.java.dev.pengunaria.osmdestinationviewer.render.ExitInfoRenderer;
 import main.java.dev.pengunaria.osmdestinationviewer.render.Renderable;
 
 /**
- * Class representing a simple exit information sign
+ * Factory for creating a renderer for an Exit Info signpost.
+ * 
+ * References: https://wiki.openstreetmap.org/wiki/Key:destination
+ * https://wiki.openstreetmap.org/wiki/Exit_Info
  */
 public class ExitInfoFactory implements Factory {
 	@Override
 	public Renderable createRenderer(Map<String, String> tags, String countryCode) throws Exception {
-		/**
-		 * Vedi https://wiki.openstreetmap.org/wiki/Key:destination
-		 * https://wiki.openstreetmap.org/wiki/Exit_Info
-		 */
-		if (tags.containsKey("destination")) {
-			String[] destinationsStr = tags.get("destination").split(";", -1);
-			Destination[] destinations = new Destination[destinationsStr.length];
-			for (int j = 0; j < destinations.length; j++) {
-				destinations[j] = new Destination(destinationsStr[j]);
-			}
-			if (tags.containsKey("destination:ref")) {
-				if (tags.get("destination:ref").contains(";")) {
-					String[] refs = tags.get("destination:ref").split(";", -1);
-					if (refs.length != destinations.length) {
-						throw new Exception(
-								"Number of references does not match number of destinations for tag: destination:ref");
-					}
-					for (int j = 0; j < refs.length; j++) {
-						destinations[j].setRef(refs[j]);
-					}
-				} else {
-					String ref = tags.get("destination:ref");
-					for (int j = 0; j < destinations.length; j++) {
-						destinations[j].setRef(ref);
-					}
-				}
-			}
-			if (tags.containsKey("destination:symbol")) {
-				String[] symbols = tags.get("destination:symbol").split(";", -1);
-				if (symbols.length != destinations.length) {
-					throw new Exception(
-							"Number of symbols does not match number of destinations for tag: destination:symbol");
-				}
-				for (int j = 0; j < symbols.length; j++) {
-					destinations[j].setSymbol(symbols[j]);
-				}
-			}
-			if (tags.containsKey("destination:int_ref")) {
-				String[] intRefs = tags.get("destination:int_ref").split(";", -1);
-				if (intRefs.length != destinations.length) {
-					throw new Exception(
-							"Number of internal references does not match number of destinations for tag: destination:int_ref");
-				}
-				for (int j = 0; j < intRefs.length; j++) {
-					destinations[j].setIntRef(intRefs[j]);
-				}
-			}
-			if (tags.containsKey("destination:street")) {
-				String[] streets = tags.get("destination:street").split(";", -1);
-				if (streets.length != destinations.length) {
-					throw new Exception(
-							"Number of streets does not match number of destinations for tag: destination:street");
-				}
-				for (int j = 0; j < streets.length; j++) {
-					destinations[j].setStreet(streets[j]);
-				}
-			}
-			if (tags.containsKey("destination:colour")) {
-				String[] colors = tags.get("destination:colour").split(";", -1);
-				if (colors.length != destinations.length) {
-					throw new Exception(
-							"Number of colors does not match number of destinations for tag: destination:colour");
-				}
-				for (int j = 0; j < colors.length; j++) {
-					destinations[j].setColor(new SignColor(colors[j]));
-				}
-			}
-
-			Signpost signpost = new Signpost();
-			signpost.setLanes(new Lane[] { new Lane(destinations,
-					RoadSignpostUtils.isLeftDriving(countryCode) ? Direction.LEFT : Direction.RIGHT, null) });
-			signpost.setBackgroundColor(RoadSignpostUtils.getBackgroundColor(tags, countryCode));
-			return new ExitInfoRenderer(signpost);
-		} else {
-			throw new Exception("Highway without destination");
+		if (!tags.containsKey("destination")) {
+			throw new IllegalArgumentException("Highway without destination");
 		}
+		String[] destinationsStr = tags.get("destination").split(";", -1);
+		Destination[] destinations = new Destination[destinationsStr.length];
+		for (int j = 0; j < destinations.length; j++) {
+			destinations[j] = new Destination(destinationsStr[j]);
+		}
+		// destination:ref
+		if (tags.containsKey("destination:ref")) {
+			String refValue = tags.get("destination:ref");
+			if (refValue.contains(";")) {
+				String[] refs = refValue.split(";", -1);
+				if (refs.length != destinations.length) {
+					throw new IllegalArgumentException(
+							"Number of references does not match number of destinations for tag: destination:ref");
+				}
+				for (int j = 0; j < refs.length; j++) {
+					destinations[j].setRef(refs[j]);
+				}
+			} else {
+				for (int j = 0; j < destinations.length; j++) {
+					destinations[j].setRef(refValue);
+				}
+			}
+		}
+		// destination:symbol
+		if (tags.containsKey("destination:symbol")) {
+			String[] symbols = tags.get("destination:symbol").split(";", -1);
+			if (symbols.length != destinations.length) {
+				throw new IllegalArgumentException(
+						"Number of symbols does not match number of destinations for tag: destination:symbol");
+			}
+			for (int j = 0; j < symbols.length; j++) {
+				destinations[j].setSymbol(symbols[j]);
+			}
+		}
+		// destination:int_ref
+		if (tags.containsKey("destination:int_ref")) {
+			String[] intRefs = tags.get("destination:int_ref").split(";", -1);
+			if (intRefs.length != destinations.length) {
+				throw new IllegalArgumentException(
+						"Number of internal references does not match number of destinations for tag: destination:int_ref");
+			}
+			for (int j = 0; j < intRefs.length; j++) {
+				destinations[j].setIntRef(intRefs[j]);
+			}
+		}
+		// destination:street
+		if (tags.containsKey("destination:street")) {
+			String[] streets = tags.get("destination:street").split(";", -1);
+			if (streets.length != destinations.length) {
+				throw new IllegalArgumentException(
+						"Number of streets does not match number of destinations for tag: destination:street");
+			}
+			for (int j = 0; j < streets.length; j++) {
+				destinations[j].setStreet(streets[j]);
+			}
+		}
+		// destination:colour
+		if (tags.containsKey("destination:colour")) {
+			String[] colors = tags.get("destination:colour").split(";", -1);
+			if (colors.length != destinations.length) {
+				throw new IllegalArgumentException(
+						"Number of colors does not match number of destinations for tag: destination:colour");
+			}
+			for (int j = 0; j < colors.length; j++) {
+				destinations[j].setColor(new SignColor(colors[j]));
+			}
+		}
+		Signpost signpost = new Signpost();
+		signpost.setLanes(new Lane[] { new Lane(destinations,
+				RoadSignpostUtils.isLeftDriving(countryCode) ? Direction.LEFT : Direction.RIGHT, null) });
+		signpost.setBackgroundColor(RoadSignpostUtils.getBackgroundColor(tags, countryCode));
+		return new ExitInfoRenderer(signpost);
 	}
 }

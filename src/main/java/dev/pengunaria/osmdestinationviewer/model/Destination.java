@@ -28,14 +28,30 @@ package main.java.dev.pengunaria.osmdestinationviewer.model;
  * Class representing a single destination
  */
 public class Destination {
+	/**
+	 * Name of the destination (e.g., city, locality, etc.)
+	 */
 	private String name;
 	/**
-	 * Applicable only for Exit signs.
+	 * Reference (e.g., exit number, road code). Applicable only for Exit Info
+	 * signposts.
 	 */
 	private String ref;
+	/**
+	 * Symbol associated with the destination (e.g., tourist symbol, icon).
+	 */
 	private String symbol;
+	/**
+	 * International reference (e.g., E45, E70).
+	 */
 	private String intRef;
+	/**
+	 * Street name associated with the destination.
+	 */
 	private String street;
+	/**
+	 * Sign color associated with the destination.
+	 */
 	private SignColor color;
 
 	public Destination(String name) {

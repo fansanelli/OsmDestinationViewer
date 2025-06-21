@@ -33,20 +33,19 @@ import main.java.dev.pengunaria.osmdestinationviewer.render.LanesRenderer;
 import main.java.dev.pengunaria.osmdestinationviewer.render.Renderable;
 
 /**
- * Class representing a simple exit information sign
+ * Factory for creating Lane sign renderers from OSM tags.
+ *
+ * References: https://wiki.openstreetmap.org/wiki/Key:destination
+ * https://wiki.openstreetmap.org/wiki/User:Mueschel/DestinationTagging
  */
 public class LanesFactory implements Factory {
 	@Override
 	public Renderable createRenderer(Map<String, String> tags, String countryCode) throws Exception {
 		Lane[] lanes;
-		/**
-		 * Vedi https://wiki.openstreetmap.org/wiki/Key:destination
-		 * https://wiki.openstreetmap.org/wiki/User:Mueschel/DestinationTagging
-		 */
 		if (tags.containsKey("destination:lanes")) {
 			String[] lanesStr = tags.get("destination:lanes").split("\\|");
 			if (tags.containsKey("lanes") && !Integer.toString(lanesStr.length).equals(tags.get("lanes"))) {
-				throw new Exception(
+				throw new IllegalArgumentException(
 						"Number of lanes does not match number of destinations for tag: \"destination:lanes\"");
 			}
 			lanes = new Lane[lanesStr.length];
@@ -59,9 +58,8 @@ public class LanesFactory implements Factory {
 				lanes[i] = new Lane(destinations);
 			}
 		} else {
-			throw new Exception("Highway without destination");
+			throw new IllegalArgumentException("Highway without destination");
 		}
-
 		Signpost signpost = new Signpost();
 		signpost.setLanes(lanes);
 		signpost.setBackgroundColor(RoadSignpostUtils.getBackgroundColor(tags, countryCode));
