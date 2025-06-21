@@ -22,15 +22,15 @@
  * SOFTWARE.
  */
 
-package main.java.dev.pengunaria.osmdestinationviewer;
+package main.java.dev.pengunaria.osmdestinationviewer.model;
 
 /**
  * Class representing a color for a destination sign
  */
-class SignColor {
+public class SignColor {
 	private final String rgb; // #RRGGBB or "none"
 
-	SignColor(String color) throws Exception {
+	public SignColor(String color) throws Exception {
 		if (color == null || color.isEmpty() || "none".equalsIgnoreCase(color)) {
 			this.rgb = "none";
 			return;

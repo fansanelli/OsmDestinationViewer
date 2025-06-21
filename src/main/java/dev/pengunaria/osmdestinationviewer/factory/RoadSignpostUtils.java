@@ -22,24 +22,19 @@
  * SOFTWARE.
  */
 
-package main.java.dev.pengunaria.osmdestinationviewer;
+package main.java.dev.pengunaria.osmdestinationviewer.factory;
 
 import java.util.Map;
 
+import main.java.dev.pengunaria.osmdestinationviewer.model.SignColor;
+
 /**
- * Class to extend for road signposts.
+ * Utilities for road signposts.
  */
-abstract class RoadSignpost implements Signpost {
-	protected Map<String, String> tags;
-	protected String countryCode;
+class RoadSignpostUtils {
 
-	RoadSignpost(Map<String, String> tags, String countryCode) throws Exception {
-		this.tags = tags;
-		this.countryCode = countryCode;
-	}
-
-	protected boolean isLeftDriving() {
-		if (this.countryCode != null) {
+	public static boolean isLeftDriving(String countryCode) {
+		if (countryCode != null) {
 			switch (countryCode.toUpperCase()) {
 			case "GB": // United Kingdom
 			case "IE": // Ireland
@@ -112,32 +107,32 @@ abstract class RoadSignpost implements Signpost {
 			case "VI": // U.S. Virgin Islands
 				// TODO: Check if the list is correct and complete
 				return true;
-			}			
+			}
 		}
 		return false; // Default to right driving
 	}
 
-	protected SignColor getBackgroundColor() {
+	public static SignColor getBackgroundColor(Map<String, String> tags, String countryCode) {
 		/**
 		 * Vedi: https://wiki.openstreetmap.org/wiki/Key:destination:colour
 		 */
 		String backgroundColor = "white";
-		if (this.countryCode != null) {
-			switch (this.countryCode.toUpperCase()) {
+		if (countryCode != null) {
+			switch (countryCode.toUpperCase()) {
 			case "DE": // Germany
-				if (isMotorway()) {
+				if (isMotorway(tags)) {
 					backgroundColor = "blue";
 				}
 				break;
 			case "IT": // Italy
-				if (isMotorway()) {
+				if (isMotorway(tags)) {
 					backgroundColor = "green";
-				} else if (isFreeway()) {
+				} else if (isFreeway(tags)) {
 					backgroundColor = "blue";
 				}
 			case "CA": // Canada
 			case "US": // United States
-				if (isMotorway()) {
+				if (isMotorway(tags)) {
 					backgroundColor = "green";
 				}
 				break;
@@ -150,12 +145,12 @@ abstract class RoadSignpost implements Signpost {
 		}
 	}
 
-	protected boolean isMotorway() {
+	private static boolean isMotorway(Map<String, String> tags) {
 		return tags.containsKey("highway")
 				&& ("motorway".equals(tags.get("highway")) || "motorway_link".equals(tags.get("highway")));
 	}
 
-	protected boolean isFreeway() {
+	private static boolean isFreeway(Map<String, String> tags) {
 		return tags.containsKey("motorroad") && "yes".equals(tags.get("motorroad"));
 	}
 }

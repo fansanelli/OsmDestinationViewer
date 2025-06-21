@@ -22,47 +22,65 @@
  * SOFTWARE.
  */
 
-package main.java.dev.pengunaria.osmdestinationviewer;
+package main.java.dev.pengunaria.osmdestinationviewer.model;
 
 /**
- * Class representing a single lane in a road or path.
+ * Class representing a single destination
  */
-class Lane {
-	private Destination[] destinations;
-	private Direction direction;
+public class Destination {
+	private String name;
 	/**
-	 * Applicable for Guideposts and Lane signs.
+	 * Applicable only for Exit signs.
 	 */
-	private String[] ref;
-	
-	Lane(Destination[] destinations, Direction direction, String[] ref) {
-		this.destinations = destinations;
-		this.direction = direction;
-		this.ref = ref;
+	private String ref;
+	private String symbol;
+	private String intRef;
+	private String street;
+	private SignColor color;
+
+	public Destination(String name) {
+		this.name = name;
 	}
 
-	Lane(Destination[] destinations) {
-		this(destinations, null, null);
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
 	}
 
-	public Destination[] getDestinations() {
-		return destinations;
-	}
-	public void setDestinations(Destination[] destinations) {
-		this.destinations = destinations;
-	}
-
-	public Direction getDirection() {
-		return direction;
-	}
-	public void setDirection(Direction direction) {
-		this.direction = direction;
-	}
-
-	public String[] getRef() {
+	public String getRef() {
 		return ref;
 	}
-	public void setRef(String[] ref) {
+	public void setRef(String ref) {
 		this.ref = ref;
+	}
+
+	public String getSymbol() {
+		return symbol;
+	}
+	public void setSymbol(String symbol) {
+		this.symbol = symbol;
+	}
+
+	public String getIntRef() {
+		return intRef;
+	}
+	public void setIntRef(String intRef) {
+		this.intRef = intRef;
+	}
+
+	public String getStreet() {
+		return street;
+	}
+	public void setStreet(String street) {
+		this.street = street;
+	}
+
+	public SignColor getColor() {
+		return color;
+	}
+	public void setColor(SignColor color) {
+		this.color = color;
 	}
 }

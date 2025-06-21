@@ -22,48 +22,11 @@
  * SOFTWARE.
  */
 
-package main.java.dev.pengunaria.osmdestinationviewer;
-
-import java.util.Map;
-
-import main.java.dev.pengunaria.osmdestinationviewer.dispatcher.Dispatcher;
-import main.java.dev.pengunaria.osmdestinationviewer.render.Renderable;
+package main.java.dev.pengunaria.osmdestinationviewer.render;
 
 /**
- * This class is used to create a signpost from OSM destination tags.
+ * Interface to be implemented by classes that render signposts.
  */
-public class OsmDestinationViewer {
-	private final Renderable r;
-	private boolean compact = false;
-
-	/**
-	 * Constructor for OsmDestinationViewer.
-	 * 
-	 * @param tags
-	 * @param countryCode ex. DE for Germany, FR for France, etc.
-	 * @throws Exception
-	 */
-	public OsmDestinationViewer(Map<String, String> tags, String countryCode) throws Exception {
-		r = new Dispatcher().dispatch(tags, countryCode);
-	}
-
-	/**
-	 * Sets the compact mode for the signpost (mobile).
-	 * 
-	 * @param compact
-	 * @return the OsmDestinationViewer instance
-	 */
-	public OsmDestinationViewer setCompact(boolean compact) {
-		this.compact = compact;
-		return this;
-	}
-
-	/**
-	 * Transforms the signpost into an image.
-	 * 
-	 * @return a SVG string
-	 */
-	public String getSvg() {
-		return r.toSvg(compact);
-	}
+public interface Renderable {
+	String toSvg(boolean compact);
 }

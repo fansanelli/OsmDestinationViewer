@@ -22,41 +22,20 @@
  * SOFTWARE.
  */
 
-package main.java.dev.pengunaria.osmdestinationviewer;
+package main.java.dev.pengunaria.osmdestinationviewer.render;
 
-import java.util.Map;
+import main.java.dev.pengunaria.osmdestinationviewer.model.Destination;
+import main.java.dev.pengunaria.osmdestinationviewer.model.Lane;
+import main.java.dev.pengunaria.osmdestinationviewer.model.Signpost;
 
 /**
- * Class representing a simple exit information sign
+ * Class to render lanes signposts
  */
-class LaneSign extends RoadSignpost {
-	private Lane[] lanes;
+public class LanesRenderer implements Renderable {
+	private final Signpost signpost;
 
-	LaneSign(Map<String, String> tags, String countryCode) throws Exception {
-		super(tags, countryCode);
-
-		/**
-		 * Vedi https://wiki.openstreetmap.org/wiki/Key:destination
-		 * https://wiki.openstreetmap.org/wiki/User:Mueschel/DestinationTagging
-		 */
-		if (tags.containsKey("destination:lanes")) {
-			String[] lanesStr = tags.get("destination:lanes").split("\\|");
-			if (tags.containsKey("lanes") && !Integer.toString(lanesStr.length).equals(tags.get("lanes"))) {
-				throw new Exception(
-						"Number of lanes does not match number of destinations for tag: \"destination:lanes\"");
-			}
-			this.lanes = new Lane[lanesStr.length];
-			for (int i = 0; i < lanesStr.length; i++) {
-				String[] destinationsStr = lanesStr[i].split(";");
-				Destination[] destinations = new Destination[destinationsStr.length];
-				for (int j = 0; j < destinations.length; j++) {
-					destinations[j] = new Destination(destinationsStr[j]);
-				}
-				this.lanes[i] = new Lane(destinations);
-			}
-		} else {
-			throw new Exception("Highway without destination");
-		}
+	public LanesRenderer(Signpost signpost) {
+		this.signpost = signpost;
 	}
 
 	@Override
@@ -64,11 +43,11 @@ class LaneSign extends RoadSignpost {
 		final int laneWidth = 120;
 		final int lineHeight = 20;
 		final int laneSpacing = 10;
-		int numLanes = lanes.length;
+		int numLanes = this.signpost.getLanes().length;
 
 		// Calcola l'altezza massima tra tutte le corsie
 		int maxLines = 0;
-		for (Lane lane : lanes) {
+		for (Lane lane : this.signpost.getLanes()) {
 			int laneLines = 0;
 			for (Destination dest : lane.getDestinations()) {
 				laneLines++; // name
@@ -96,17 +75,17 @@ class LaneSign extends RoadSignpost {
 			rect.setAttribute("y", "0");
 			rect.setAttribute("width", String.valueOf(width));
 			rect.setAttribute("height", String.valueOf(height));
-			rect.setAttribute("fill", getBackgroundColor().toString());
+			rect.setAttribute("fill", signpost.getBackgroundColor().toString());
 			svg.appendChild(rect);
 
 			for (int i = 0; i < numLanes; i++) {
-				Lane lane = lanes[i];
+				Lane lane = this.signpost.getLanes()[i];
 				int xOffset = 5 + i * (laneWidth + laneSpacing);
 				int y = 15;
 				for (Destination dest : lane.getDestinations()) {
 					boolean hasColor = dest.getColor() != null && !dest.getColor().isEmpty();
 					boolean hasStreet = dest.getStreet() != null && !dest.getStreet().isEmpty();
-					String textColor = hasColor ? dest.getColor().getContrastColor() : getBackgroundColor().getContrastColor();
+					String textColor = hasColor ? dest.getColor().getContrastColor() : signpost.getBackgroundColor().getContrastColor();
 
 					if (hasColor) {
 						int rectHeight = hasStreet ? lineHeight * 2 : lineHeight;

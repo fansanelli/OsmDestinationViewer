@@ -22,65 +22,47 @@
  * SOFTWARE.
  */
 
-package main.java.dev.pengunaria.osmdestinationviewer;
+package main.java.dev.pengunaria.osmdestinationviewer.model;
 
 /**
- * Class representing a single destination
+ * Class representing a single lane in a road or path.
  */
-class Destination {
-	private String name;
+public class Lane {
+	private Destination[] destinations;
+	private Direction direction;
 	/**
-	 * Applicable only for Exit signs.
+	 * Applicable for Guideposts and Lane signs.
 	 */
-	private String ref;
-	private String symbol;
-	private String intRef;
-	private String street;
-	private SignColor color;
+	private String[] ref;
 
-	Destination(String name) {
-		this.name = name;
-	}
-
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getRef() {
-		return ref;
-	}
-	public void setRef(String ref) {
+	public Lane(Destination[] destinations, Direction direction, String[] ref) {
+		this.destinations = destinations;
+		this.direction = direction;
 		this.ref = ref;
 	}
 
-	public String getSymbol() {
-		return symbol;
-	}
-	public void setSymbol(String symbol) {
-		this.symbol = symbol;
+	public Lane(Destination[] destinations) {
+		this(destinations, null, null);
 	}
 
-	public String getIntRef() {
-		return intRef;
+	public Destination[] getDestinations() {
+		return destinations;
 	}
-	public void setIntRef(String intRef) {
-		this.intRef = intRef;
-	}
-
-	public String getStreet() {
-		return street;
-	}
-	public void setStreet(String street) {
-		this.street = street;
+	public void setDestinations(Destination[] destinations) {
+		this.destinations = destinations;
 	}
 
-	public SignColor getColor() {
-		return color;
+	public Direction getDirection() {
+		return direction;
 	}
-	public void setColor(SignColor color) {
-		this.color = color;
+	public void setDirection(Direction direction) {
+		this.direction = direction;
+	}
+
+	public String[] getRef() {
+		return ref;
+	}
+	public void setRef(String[] ref) {
+		this.ref = ref;
 	}
 }

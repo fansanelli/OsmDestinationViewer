@@ -22,22 +22,27 @@
  * SOFTWARE.
  */
 
-package main.java.dev.pengunaria.osmdestinationviewer;
+package main.java.dev.pengunaria.osmdestinationviewer.factory;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import main.java.dev.pengunaria.osmdestinationviewer.model.Destination;
+import main.java.dev.pengunaria.osmdestinationviewer.model.Direction;
+import main.java.dev.pengunaria.osmdestinationviewer.model.Lane;
+import main.java.dev.pengunaria.osmdestinationviewer.model.Signpost;
+import main.java.dev.pengunaria.osmdestinationviewer.render.GuidepostRenderer;
+import main.java.dev.pengunaria.osmdestinationviewer.render.Renderable;
 
-class GuidepostSign implements Signpost {
+public class GuidepostFactory implements Factory {
 	private static final String[] directionTags = { "direction_north", "direction_east", "direction_south",
 			"direction_west", "direction_northeast", "direction_northwest", "direction_southeast",
 			"direction_southwest" };
-	private Lane[] lanes;
 
-	GuidepostSign(Map<String, String> tags) throws Exception {
+	@Override
+	public Renderable createRenderer(Map<String, String> tags, String countryCode) throws Exception {
+		Lane[] lanes;
 		/**
 		 * Vedi: https://wiki.openstreetmap.org/wiki/IT:CAI#Luoghi_di_posa
 		 * 
@@ -50,14 +55,14 @@ class GuidepostSign implements Signpost {
 		 */
 		if (tags.containsKey("destination")) {
 			String[] lanesStr = tags.get("destination").split("\\|");
-			this.lanes = new Lane[lanesStr.length];
+			lanes = new Lane[lanesStr.length];
 			for (int i = 0; i < lanesStr.length; i++) {
 				String[] destinationsStr = lanesStr[i].split(";");
 				Destination[] destinations = new Destination[destinationsStr.length];
 				for (int j = 0; j < destinations.length; j++) {
 					destinations[j] = new Destination(destinationsStr[j]);
 				}
-				this.lanes[i] = new Lane(destinations);
+				lanes[i] = new Lane(destinations);
 			}
 		} else {
 			/**
@@ -93,50 +98,14 @@ class GuidepostSign implements Signpost {
 							ref));
 				}
 			}
-			this.lanes = laneList.toArray(new Lane[0]);
+			lanes = laneList.toArray(new Lane[0]);
 		}
-		if (this.lanes.length == 0) {
+		if (lanes.length == 0) {
 			throw new Exception("Guidepost without destination");
 		}
-	}
 
-	@Override
-	public String toSvg(boolean compact) {
-		try {
-			Document doc = SvgUtils.getNewDocument();
-
-			Element svg = doc.createElementNS("http://www.w3.org/2000/svg", "svg");
-			final int docWidth = 320;
-			final int arrowHeight = 60;
-			int y = 5; // Initial Document height
-			for (Lane lane : lanes) {
-				for (int i = 0; i < lane.getDestinations().length; i += 3) {
-					Element arrow = SvgUtils.getArrow(doc, 5, y, 310, arrowHeight, false);
-					for (int j = 0; j < 3; j++) {
-						if (i + j >= lane.getDestinations().length)
-							break;
-
-						Element textEl = doc.createElementNS("http://www.w3.org/2000/svg", "text");
-						textEl.setAttribute("x", String.valueOf(10));
-						textEl.setAttribute("y", String.valueOf(20 + j * 15)); // 15 = textSpacing
-						textEl.setAttribute("text-anchor", "start");
-						textEl.setAttribute("alignment-baseline", "middle");
-						textEl.setAttribute("font-size", "13");
-						textEl.setTextContent(lane.getDestinations()[i + j].getName());
-						arrow.appendChild(textEl);
-					}
-					svg.appendChild(arrow);
-					y += arrowHeight + 5;
-				}
-			}
-
-			svg.setAttribute("width", String.valueOf(docWidth));
-			svg.setAttribute("height", String.valueOf(y + 5));
-			svg.setAttribute("viewBox", "0 0 " + docWidth + " " + (y + 5));
-			doc.appendChild(svg);
-			return SvgUtils.serializeDocument(doc);
-		} catch (Exception e) {
-			throw new RuntimeException("SVG generation failed", e);
-		}
+		Signpost signpost = new Signpost();
+		signpost.setLanes(lanes);
+		return new GuidepostRenderer(signpost);
 	}
 }

@@ -22,48 +22,53 @@
  * SOFTWARE.
  */
 
-package main.java.dev.pengunaria.osmdestinationviewer;
-
-import java.util.Map;
-
-import main.java.dev.pengunaria.osmdestinationviewer.dispatcher.Dispatcher;
-import main.java.dev.pengunaria.osmdestinationviewer.render.Renderable;
+package main.java.dev.pengunaria.osmdestinationviewer.model;
 
 /**
- * This class is used to create a signpost from OSM destination tags.
+ * Class representing a lane or path direction.
  */
-public class OsmDestinationViewer {
-	private final Renderable r;
-	private boolean compact = false;
+public enum Direction {
+	THROUGH("through"),
+	LEFT("left"),
+	RIGHT("right"),
+	NORTH("north"),
+	EAST("east"),
+	SOUTH("south"),
+	WEST("west"),
+	NORTHEAST("northeast"),
+	NORTHWEST("northwest"),
+	SOUTHEAST("southeast"),
+	SOUTHWEST("southwest");
 
-	/**
-	 * Constructor for OsmDestinationViewer.
-	 * 
-	 * @param tags
-	 * @param countryCode ex. DE for Germany, FR for France, etc.
-	 * @throws Exception
-	 */
-	public OsmDestinationViewer(Map<String, String> tags, String countryCode) throws Exception {
-		r = new Dispatcher().dispatch(tags, countryCode);
+	private final String value;
+
+	Direction(String value) {
+		this.value = value;
 	}
 
-	/**
-	 * Sets the compact mode for the signpost (mobile).
-	 * 
-	 * @param compact
-	 * @return the OsmDestinationViewer instance
-	 */
-	public OsmDestinationViewer setCompact(boolean compact) {
-		this.compact = compact;
-		return this;
-	}
-
-	/**
-	 * Transforms the signpost into an image.
-	 * 
-	 * @return a SVG string
-	 */
-	public String getSvg() {
-		return r.toSvg(compact);
+	@Override
+	public String toString() {
+		switch (this) {
+		case NORTH:
+		case THROUGH:
+			return "⬆️";
+		case EAST:
+			return "➡️";
+		case SOUTH:
+			return "⬇️";
+		case WEST:
+			return "⬅️";
+		case RIGHT:
+		case NORTHEAST:
+			return "↗️";
+		case LEFT:
+		case NORTHWEST:
+			return "↖️";
+		case SOUTHEAST:
+			return "↘️";
+		case SOUTHWEST:
+			return "↙️";
+		}
+		return this.value;
 	}
 }

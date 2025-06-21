@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package main.java.dev.pengunaria.osmdestinationviewer;
+package main.java.dev.pengunaria.osmdestinationviewer.render;
 
 import java.io.StringWriter;
 

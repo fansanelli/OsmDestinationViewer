@@ -22,11 +22,26 @@
  * SOFTWARE.
  */
 
-package main.java.dev.pengunaria.osmdestinationviewer;
+package main.java.dev.pengunaria.osmdestinationviewer.model;
 
 /**
- * Interface to be implemented by classes representing signposts.
+ * Class representing a signpost.
  */
-interface Signpost {
-	String toSvg(boolean compact);
+public class Signpost {
+	private Lane[] lanes;
+	private SignColor backgroundColor;
+
+	public Lane[] getLanes() {
+		return lanes;
+	}
+	public void setLanes(Lane[] lanes) {
+		this.lanes = lanes;
+	}
+
+	public SignColor getBackgroundColor() {
+		return backgroundColor;
+	}
+	public void setBackgroundColor(SignColor backgroundColor) {
+		this.backgroundColor = backgroundColor;
+	}
 }
