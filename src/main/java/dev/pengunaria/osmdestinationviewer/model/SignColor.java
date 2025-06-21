@@ -65,7 +65,7 @@ public class SignColor {
 				this.rgb = "#f7a100";
 				break;
 			default:
-				throw new Exception("Invalid color name: " + color);
+				throw new IllegalArgumentException("Invalid color name: " + color);
 			}
 		}
 	}
