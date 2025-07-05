@@ -24,11 +24,14 @@
 
 package main.java.dev.pengunaria.osmdestinationviewer.render;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
+import main.java.dev.pengunaria.osmdestinationviewer.model.Destination;
 import main.java.dev.pengunaria.osmdestinationviewer.model.Lane;
 import main.java.dev.pengunaria.osmdestinationviewer.model.Signpost;
+import main.java.dev.pengunaria.osmdestinationviewer.render.api.SvgSerializer;
+import main.java.dev.pengunaria.osmdestinationviewer.render.model.ArrowElement;
+import main.java.dev.pengunaria.osmdestinationviewer.render.model.GraphicDocument;
+import main.java.dev.pengunaria.osmdestinationviewer.render.model.GroupElement;
+import main.java.dev.pengunaria.osmdestinationviewer.render.model.TextElement;
 
 public class GuidepostRenderer implements Renderable {
 	private final Signpost signpost;
@@ -39,39 +42,51 @@ public class GuidepostRenderer implements Renderable {
 
 	@Override
 	public String toSvg(boolean compact) {
-		try {
-			Document doc = SvgUtils.getNewDocument();
+		final int docWidth = 320;
+		final int arrowHeight = 60;
+		int y = 5;
+		GraphicDocument gdoc = new GraphicDocument(docWidth, 1000); // altezza provvisoria, aggiornata dopo
+		int maxY = y;
 
-			Element svg = doc.createElementNS("http://www.w3.org/2000/svg", "svg");
-			final int docWidth = 320;
-			final int arrowHeight = 60;
-			int y = 5; // Initial Document height
-			for (Lane lane : signpost.getLanes()) {
-				for (int i = 0; i < lane.getDestinations().length; i += 3) {
-					Element arrow = SvgUtils.getArrow(doc, 5, y, 310, arrowHeight, false);
-					for (int j = 0; j < 3; j++) {
-						if (i + j >= lane.getDestinations().length)
-							break;
-
-						Element textEl = doc.createElementNS("http://www.w3.org/2000/svg", "text");
-						textEl.setAttribute("x", String.valueOf(10));
-						textEl.setAttribute("y", String.valueOf(20 + j * 15)); // 15 = textSpacing
-						textEl.setAttribute("text-anchor", "start");
-						textEl.setAttribute("alignment-baseline", "middle");
-						textEl.setAttribute("font-size", "13");
-						textEl.setTextContent(lane.getDestinations()[i + j].getName());
-						arrow.appendChild(textEl);
-					}
-					svg.appendChild(arrow);
-					y += arrowHeight + 5;
+		for (Lane lane : signpost.getLanes()) {
+			for (int i = 0; i < lane.getDestinations().length; i += 3) {
+				GroupElement arrowGroup = new GroupElement();
+				ArrowElement arrow = new ArrowElement(5, y, 310, arrowHeight, false, "#fff", "#000", 2);
+				arrowGroup.addChild(arrow);
+				for (int j = 0; j < 3; j++) {
+					if (i + j >= lane.getDestinations().length)
+						break;
+					Destination dest = lane.getDestinations()[i + j];
+					TextElement textEl = new TextElement(dest.getName(), 10, y + 20 + j * 15, "#000", null, 13);
+					arrowGroup.addChild(textEl);
 				}
+				gdoc.addElement(arrowGroup);
+				y += arrowHeight + 5;
+				maxY = y;
 			}
-
-			svg.setAttribute("width", String.valueOf(docWidth));
-			svg.setAttribute("height", String.valueOf(y + 5));
-			svg.setAttribute("viewBox", "0 0 " + docWidth + " " + (y + 5));
-			doc.appendChild(svg);
-			return SvgUtils.serializeDocument(doc);
+		}
+		gdoc = new GraphicDocument(docWidth, maxY + 5);
+		// Ricostruisci la scena con l'altezza corretta
+		y = 5;
+		for (Lane lane : signpost.getLanes()) {
+			for (int i = 0; i < lane.getDestinations().length; i += 3) {
+				GroupElement arrowGroup = new GroupElement();
+				ArrowElement arrow = new ArrowElement(5, y, 310, arrowHeight, false, "#fff", "#000", 2);
+				arrowGroup.addChild(arrow);
+				for (int j = 0; j < 3; j++) {
+					if (i + j >= lane.getDestinations().length)
+						break;
+					Destination dest = lane.getDestinations()[i + j];
+					TextElement textEl = new TextElement(dest.getName(), 10, y + 20 + j * 15, "#000", null, 13);
+					arrowGroup.addChild(textEl);
+				}
+				gdoc.addElement(arrowGroup);
+				y += arrowHeight + 5;
+			}
+		}
+		try {
+			SvgSerializer serializer = new SvgSerializer();
+			return serializer.serialize(gdoc);
 		} catch (Exception e) {
 			throw new RuntimeException("SVG generation failed", e);
 		}

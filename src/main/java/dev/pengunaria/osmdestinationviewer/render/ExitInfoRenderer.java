@@ -24,13 +24,14 @@
 
 package main.java.dev.pengunaria.osmdestinationviewer.render;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
 import main.java.dev.pengunaria.osmdestinationviewer.model.Destination;
 import main.java.dev.pengunaria.osmdestinationviewer.model.Direction;
 import main.java.dev.pengunaria.osmdestinationviewer.model.Lane;
 import main.java.dev.pengunaria.osmdestinationviewer.model.Signpost;
+import main.java.dev.pengunaria.osmdestinationviewer.render.api.SvgSerializer;
+import main.java.dev.pengunaria.osmdestinationviewer.render.model.GraphicDocument;
+import main.java.dev.pengunaria.osmdestinationviewer.render.model.RectElement;
+import main.java.dev.pengunaria.osmdestinationviewer.render.model.TextElement;
 
 /**
  * Class to render a simple exit information sign
@@ -48,7 +49,6 @@ public class ExitInfoRenderer implements Renderable {
 		final int lineHeight = 20;
 		int y = 15;
 
-		// Calcola l'altezza totale tenendo conto delle street
 		Lane lane = this.signpost.getLanes()[0];
 		int numLines = 0;
 		for (Destination dest : lane.getDestinations()) {
@@ -59,70 +59,46 @@ public class ExitInfoRenderer implements Renderable {
 		}
 		int height = numLines * lineHeight + 10;
 
-		try {
-			Document doc = SvgUtils.getNewDocument();
+		GraphicDocument gdoc = new GraphicDocument(width, height);
+		// Sfondo
+		gdoc.addElement(new RectElement(0, 0, width, height, this.signpost.getBackgroundColor().toString(), null));
 
-			Element svg = doc.createElement("svg");
-			svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-			svg.setAttribute("width", String.valueOf(width));
-			svg.setAttribute("height", String.valueOf(height));
-			svg.setAttribute("viewBox", "0 0 " + width + " " + height);
-			doc.appendChild(svg);
+		int currentY = y;
+		for (Destination dest : lane.getDestinations()) {
+			boolean hasColor = dest.getColor() != null && !dest.getColor().isEmpty();
+			boolean hasStreet = dest.getStreet() != null && !dest.getStreet().isEmpty();
+			String textColor = hasColor ? dest.getColor().getContrastColor()
+					: this.signpost.getBackgroundColor().getContrastColor();
 
-			Element rect = doc.createElement("rect");
-			rect.setAttribute("x", "0");
-			rect.setAttribute("y", "0");
-			rect.setAttribute("width", String.valueOf(width));
-			rect.setAttribute("height", String.valueOf(height));
-			rect.setAttribute("fill", this.signpost.getBackgroundColor().toString());
-			svg.appendChild(rect);
-
-			int currentY = y;
-			for (Destination dest : lane.getDestinations()) {
-				boolean hasColor = dest.getColor() != null && !dest.getColor().isEmpty();
-				boolean hasStreet = dest.getStreet() != null && !dest.getStreet().isEmpty();
-				String textColor = hasColor ? dest.getColor().getContrastColor()
-						: this.signpost.getBackgroundColor().getContrastColor();
-
-				if (hasColor) {
-					int rectHeight = hasStreet ? lineHeight * 2 : lineHeight;
-					Element innerRect = doc.createElement("rect");
-					innerRect.setAttribute("x", "5");
-					innerRect.setAttribute("y", String.valueOf(currentY - lineHeight + 5));
-					innerRect.setAttribute("width", String.valueOf(width - 10));
-					innerRect.setAttribute("height", String.valueOf(rectHeight));
-					innerRect.setAttribute("rx", "4");
-					innerRect.setAttribute("fill", dest.getColor().toString());
-					svg.appendChild(innerRect);
-				}
-
-				Element textElem = doc.createElement("text");
-				textElem.setAttribute("x", "10");
-				textElem.setAttribute("y", String.valueOf(currentY));
-				textElem.setAttribute("fill", textColor);
-				String arrow = lane.getDirection() != null ? lane.getDirection().toString() : "";
-				String text = dest.getName();
-				if (lane.getDirection() == Direction.LEFT) {
-					textElem.setTextContent(arrow + " " + text);
-				} else {
-					textElem.setTextContent(text + " " + arrow);
-				}
-				svg.appendChild(textElem);
-
-				if (hasStreet) {
-					currentY += lineHeight;
-					Element streetElem = doc.createElement("text");
-					streetElem.setAttribute("x", "20");
-					streetElem.setAttribute("y", String.valueOf(currentY));
-					streetElem.setAttribute("fill", textColor);
-					streetElem.setAttribute("font-size", "14");
-					streetElem.setTextContent(dest.getStreet());
-					svg.appendChild(streetElem);
-				}
-				currentY += lineHeight;
+			if (hasColor) {
+				int rectHeight = hasStreet ? lineHeight * 2 : lineHeight;
+				RectElement innerRect = new RectElement(5, currentY - lineHeight + 5, width - 10, rectHeight,
+						dest.getColor().toString(), null);
+				gdoc.addElement(innerRect);
 			}
 
-			return SvgUtils.serializeDocument(doc);
+			String arrow = lane.getDirection() != null ? lane.getDirection().toString() : "";
+			String text = dest.getName();
+			String label;
+			if (lane.getDirection() == Direction.LEFT) {
+				label = arrow + " " + text;
+			} else {
+				label = text + " " + arrow;
+			}
+			TextElement textElem = new TextElement(label, 10, currentY, textColor, null, 16);
+			gdoc.addElement(textElem);
+
+			if (hasStreet) {
+				currentY += lineHeight;
+				TextElement streetElem = new TextElement(dest.getStreet(), 20, currentY, textColor, null, 14);
+				gdoc.addElement(streetElem);
+			}
+			currentY += lineHeight;
+		}
+
+		try {
+			SvgSerializer serializer = new SvgSerializer();
+			return serializer.serialize(gdoc);
 		} catch (Exception e) {
 			throw new RuntimeException("SVG generation failed", e);
 		}
